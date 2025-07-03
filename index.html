@@ -1,53 +1,86 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>WhatsApp Long DP Generator</title>
+  <title>WhatsApp Long DP Uploader</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
-      font-family: "Segoe UI", sans-serif;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f7f7f7;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 40px 20px;
-      background: #f0f4f8;
-      color: #222;
+      padding: 30px;
     }
     h1 {
-      font-size: 24px;
-      margin-bottom: 20px;
+      color: #2b2b2b;
     }
-    img {
-      width: 300px;
-      height: 300px;
-      object-fit: contain;
-      border: 2px dashed #4caf50;
-      border-radius: 10px;
+    .upload-box {
       background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.08);
+      max-width: 400px;
+      width: 100%;
+    }
+    .preview-container {
+      margin-top: 20px;
+      border: 2px dashed #4caf50;
+      border-radius: 12px;
+      height: 500px;
+      width: 100%;
+      background-color: #eaeaea;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    .preview-container img {
+      height: 100%;
+      width: auto;
+      object-fit: cover;
+    }
+    input[type='file'] {
+      margin-top: 15px;
+      width: 100%;
     }
     .note {
       margin-top: 15px;
-      font-size: 14px;
+      font-size: 13px;
       color: #555;
       text-align: center;
-    }
-    footer {
-      margin-top: 30px;
-      font-size: 12px;
-      color: #aaa;
     }
   </style>
 </head>
 <body>
-  <h1>📲 Scan to Connect WhatsApp</h1>
-  <img src="https://via.placeholder.com/300?text=QR+Code+Here" alt="QR code preview">
-  <div class="note">
-    Once connected, your long WhatsApp DP will be automatically uploaded.
+
+  <h1>🖼️ Long WhatsApp DP Uploader</h1>
+
+  <div class="upload-box">
+    <input type="file" id="imageInput" accept="image/*" />
+    <div class="preview-container" id="preview">
+      <span>Preview will appear here</span>
+    </div>
+    <div class="note">
+      Recommended Size: 1080x1920 or taller<br>
+      Works best for TikTok-style tall images.
+    </div>
   </div>
-  <footer>
-    LeadX Sasi © 2025
-  </footer>
+
+  <script>
+    const imageInput = document.getElementById('imageInput');
+    const preview = document.getElementById('preview');
+
+    imageInput.addEventListener('change', function () {
+      const file = this.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        preview.innerHTML = `<img src=\"${e.target.result}\" alt=\"Preview\">`;
+      };
+      reader.readAsDataURL(file);
+    });
+  </script>
 </body>
 </html>
