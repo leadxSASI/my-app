@@ -1,125 +1,227 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>WhatsApp Long DP Uploader</title>
+  <meta charset="UTF-8" />
+  <title>Phone Verification</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #f7f7f7;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 30px;
-    }
-    h1 {
-      color: #2b2b2b;
-    }
-    .upload-box {
-      background: #fff;
-      border-radius: 12px;
-      padding: 20px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.08);
-      max-width: 400px;
-      width: 100%;
-    }
-    .preview-container {
-      margin-top: 20px;
-      border: 2px dashed #4caf50;
-      border-radius: 12px;
-      height: 500px;
-      width: 100%;
-      background-color: #eaeaea;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      color: #eee;
       overflow: hidden;
     }
-    .preview-container img {
-      height: 100%;
-      width: auto;
+
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 1;
+    }
+
+    video#bgVideo {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       object-fit: cover;
+      z-index: 0;
     }
-    input[type='file'], input[type='text'] {
-      margin-top: 15px;
-      padding: 10px;
-      width: 100%;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      box-sizing: border-box;
-    }
-    button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      border: none;
-      background-color: #4caf50;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .note {
-      margin-top: 15px;
-      font-size: 13px;
-      color: #555;
+
+    .container {
+      position: relative;
+      z-index: 2;
+      background: rgba(31, 31, 31, 0.85);
+      padding: 35px 30px;
+      border-radius: 18px;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: 0 0 30px #6200ea44;
       text-align: center;
+      margin: 5% auto;
     }
-    .pair-code-box {
-      margin-top: 20px;
-      font-size: 20px;
-      font-weight: bold;
-      color: #2b2b2b;
+
+    h2 {
+      margin-bottom: 28px;
+      font-weight: 600;
+      font-size: 26px;
+      color: #bb86fc;
+    }
+
+    .input-group {
+      margin-bottom: 18px;
+      text-align: left;
+    }
+
+    label {
+      display: block;
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: #ccc;
+    }
+
+    select, input[type="tel"] {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #2a2a2a;
+      border: none;
+      color: #eee;
+      font-size: 16px;
+      box-shadow: inset 0 0 6px #000;
+      transition: box-shadow 0.3s ease;
+    }
+
+    select:focus, input[type="tel"]:focus {
+      outline: none;
+      box-shadow: 0 0 12px #bb86fc;
+    }
+
+    button {
+      background: linear-gradient(45deg, #7b2ff7, #f107a3);
+      border: none;
+      padding: 14px;
+      width: 100%;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 0 20px #bb86fcaa;
+      transition: transform 0.2s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 30px #bb86fcff;
+    }
+
+    .error {
+      margin-top: 16px;
+      font-size: 15px;
+      font-weight: 600;
+      color: #ff5252;
+      text-shadow: 0 0 8px #ff5252aa;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.3s ease;
+    }
+
+    .error.show {
+      opacity: 1;
+      transform: translateY(0);
+      animation: shake 0.4s;
+    }
+
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      50% { transform: translateX(6px); }
+      75% { transform: translateX(-6px); }
+      100% { transform: translateX(0); }
     }
   </style>
 </head>
-<body>  <h1>🖼️ Long WhatsApp DP Uploader</h1>  <div class="upload-box">
-    <input type="file" id="imageInput" accept="image/*" />
-    <input type="text" id="phoneNumber" placeholder="Enter WhatsApp Number (e.g. +9477XXXXXXX)" /><div class="preview-container" id="preview">
-  <span>Preview will appear here</span>
+<body>
+
+<!-- 🔁 Background Video -->
+<video id="bgVideo" autoplay muted loop playsinline>
+  <source src="video.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+<!-- UI -->
+<div class="container">
+  <h2>📱 Verify Phone</h2>
+
+  <div class="input-group">
+    <label for="country">Select Country Code</label>
+    <select id="country">
+      <option value="+94">🇱🇰 Sri Lanka (+94)</option>
+      <option value="+91">🇮🇳 India (+91)</option>
+      <option value="+1">🇺🇸 USA (+1)</option>
+      <option value="+44">🇬🇧 UK (+44)</option>
+      <option value="+65">🇸🇬 Singapore (+65)</option>
+    </select>
+  </div>
+
+  <div class="input-group">
+    <label for="sim">Select SIM Connection</label>
+    <select id="sim">
+      <option value="">-- Select your SIM --</option>
+      <option value="dialog">Dialog</option>
+      <option value="mobitel">Mobitel</option>
+      <option value="airtel">Airtel</option>
+      <option value="hutch">Hutch</option>
+      <option value="lankabell">Lanka Bell</option>
+      <option value="sltmobitel">SLT Mobitel</option>
+      <option value="vodafone">Vodafone</option>
+      <option value="att">AT&T</option>
+      <option value="verizon">Verizon</option>
+      <option value="tmobile">T-Mobile</option>
+      <option value="orange">Orange</option>
+      <option value="ee">EE</option>
+      <option value="sprint">Sprint</option>
+      <option value="chinamobile">China Mobile</option>
+      <option value="jio">Jio</option>
+      <option value="mtn">MTN</option>
+      <option value="telstra">Telstra</option>
+      <option value="telia">Telia</option>
+    </select>
+  </div>
+
+  <div class="input-group">
+    <label for="phone">Phone Number</label>
+    <input type="tel" id="phone" placeholder="Enter number" />
+  </div>
+
+  <button onclick="validateNumber()">Verify</button>
+  <div class="error" id="errorMsg"></div>
 </div>
 
-<button onclick="generatePairCode()">Link Profile</button>
+<script>
+  const validationRules = {
+    "+94": /^[1-9][0-9]{8}$/,
+    "+91": /^[6-9][0-9]{9}$/,
+    "+1": /^[2-9][0-9]{9}$/,
+    "+44": /^[1-9][0-9]{9}$/,
+    "+65": /^[89][0-9]{7}$/
+  };
 
-<div class="note">
-  Recommended Size: 1080x1920 or taller<br>
-  Works best for TikTok-style tall images.
-</div>
+  function validateNumber() {
+    const countryCode = document.getElementById('country').value;
+    const sim = document.getElementById('sim').value;
+    const phone = document.getElementById('phone').value.trim();
+    const errorDiv = document.getElementById('errorMsg');
 
-<div class="pair-code-box" id="pairCodeBox"></div>
+    errorDiv.classList.remove("show");
+    errorDiv.textContent = "";
 
-  </div>  <script>
-    const imageInput = document.getElementById('imageInput');
-    const preview = document.getElementById('preview');
-    const pairCodeBox = document.getElementById('pairCodeBox');
-
-    imageInput.addEventListener('change', function () {
-      const file = this.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-      };
-      reader.readAsDataURL(file);
-    });
-
-    function generatePairCode() {
-      const phone = document.getElementById('phoneNumber').value.trim();
-      if (!phone.startsWith('+94') || phone.length < 10) {
-        alert('Please enter a valid Sri Lankan WhatsApp number');
-        return;
-      }
-
-      // Simulated Pair Code
-      const code = makePairCode();
-      pairCodeBox.innerHTML = `🔐 Your Pair Code: <span style="color:#4caf50">${code}</span>`;
+    if (!sim) {
+      errorDiv.textContent = "❗ Please select your SIM connection.";
+      errorDiv.classList.add("show");
+      return;
+    }
+    if (!phone) {
+      errorDiv.textContent = "📵 Please enter your phone number.";
+      errorDiv.classList.add("show");
+      return;
+    }
+    if (!validationRules[countryCode].test(phone)) {
+      errorDiv.textContent = `❌ Invalid phone number format for ${countryCode}`;
+      errorDiv.classList.add("show");
+      return;
     }
 
-    function makePairCode() {
-      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-      let part1 = '', part2 = '';
-      for (let i = 0; i < 4; i++) part1 += chars.charAt(Math.floor(Math.random() * chars.length));
-      for (let i = 0; i < 4; i++) part2 += chars.charAt(Math.floor(Math.random() * chars.length));
-      return `${part1}-${part2}`;
-    }
-  </script></body>
+    alert(`✅ Sending code to: ${countryCode} ${phone} via SIM: ${sim.toUpperCase()}`);
+  }
+</script>
+
+</body>
 </html>
