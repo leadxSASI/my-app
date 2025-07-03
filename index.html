@@ -1,9 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>WhatsApp Long DP Uploader</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WhatsApp Long DP Uploader</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -53,11 +52,7 @@
     }
   </style>
 </head>
-<body>
-
-  <h1>🖼️ Long WhatsApp DP Uploader</h1>
-
-  <div class="upload-box">
+<body>  <h1>🖼️ Long WhatsApp DP Uploader</h1>  <div class="upload-box">
     <input type="file" id="imageInput" accept="image/*" />
     <div class="preview-container" id="preview">
       <span>Preview will appear here</span>
@@ -66,9 +61,7 @@
       Recommended Size: 1080x1920 or taller<br>
       Works best for TikTok-style tall images.
     </div>
-  </div>
-
-  <script>
+  </div>  <script>
     const imageInput = document.getElementById('imageInput');
     const preview = document.getElementById('preview');
 
@@ -77,10 +70,9 @@
       if (!file) return;
       const reader = new FileReader();
       reader.onload = function (e) {
-        preview.innerHTML = `<img src=\"${e.target.result}\" alt=\"Preview\">`;
+        preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
       };
       reader.readAsDataURL(file);
     });
-  </script>
-</body>
+  </script></body>
 </html>
